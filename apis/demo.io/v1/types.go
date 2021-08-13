@@ -20,19 +20,23 @@ type RsyncSource struct {
 
 // RsyncSourceSpec contains the information of rsync source
 type RsyncSourceSpec struct {
-	// Image name for rsync source pod
+	// Image name for rsync source or rsync daemon.
 	Image string `json:"image"`
+	// No of replicas required in the rsync daemon.
+	Replicas *int32 `json:"replicas"`
 	// +optional
-	// NodeName to schedule source pod to a node
-	NodeName string `json:"nodeName"`
-	// +optional
-	// HostName is kubernetes.io/hostname node label value for the given node name
+	// HostName is kubernetes.io/hostname label value for node.
+	// This is used to schedule rsync source to a node.
 	HostName string `json:"hostName"`
-	// Username to access this source by a client
+	// Username added as valid user for rsync daemon. Rsync client that
+	// has password can access the source uisng username and password.
 	Username string `json:"username"`
-	// Password to access this source by a client
+	// Password to access rsync sourceby any client that has access to
+	// username and pawword.
 	Password string `json:"password"`
-	// Volume that we want to make available to the client
+	// Volume that we want to make available to the client. This volume
+	// is mounted to the source as a readonly filesystem. Clisnt can only
+	// read that volume using credentials.
 	Volume corev1.Volume `json:"volume"`
 }
 
@@ -48,37 +52,4 @@ type RsyncSourceList struct {
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// List of RsyncSources
 	Items []RsyncSource `json:"items" protobuf:"bytes,2,rep,name=items"`
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// RsyncPopulator is a volume populator that helps
-// to create a volume from any rsync source.
-type RsyncPopulator struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	// Spec contains details of rsync daemon. Rsync client will use these
-	// information to connect and get the data for the volume.
-	Spec RsyncPopulatorSpec `json:"spec"`
-}
-
-// RsyncPopulatorSpec contains the information of rsync daemon.
-type RsyncPopulatorSpec struct {
-	// Username is used as credential to access rsync daemon by the client.
-	Username string `json:"username"`
-	// Password is used as credential to access rsync daemon by the client.
-	Password string `json:"password"`
-	// URL is rsync daemon url it can be dns:port or ip:port.
-	URL string `json:"url"`
-	// Path is mount path of the volume which we want to sync by the clinet.
-	Path string `json:"path"`
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// RsyncPopulatorList is a list of RsyncPopulator objects
-type RsyncPopulatorList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	// List of RsyncPopulators
-	Items []RsyncPopulator `json:"items" protobuf:"bytes,2,rep,name=items"`
 }

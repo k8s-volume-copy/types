@@ -1,4 +1,4 @@
-module github.com/kvclone/types
+module github.com/k8s-volume-copy/types
 
 go 1.14
 

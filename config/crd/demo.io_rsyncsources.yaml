@@ -37,23 +37,29 @@ spec:
             description: Spec contains list of configurations for a rsync daemon.
             properties:
               hostName:
-                description: HostName is kubernetes.io/hostname node label value for
-                  the given node name
+                description: HostName is kubernetes.io/hostname label value for node.
+                  This is used to schedule rsync source to a node.
                 type: string
               image:
-                description: Image name for rsync source pod
-                type: string
-              nodeName:
-                description: NodeName to schedule source pod to a node
+                description: Image name for rsync source or rsync daemon.
                 type: string
               password:
-                description: Password to access this source by a client
+                description: Password to access rsync sourceby any client that has
+                  access to username and pawword.
                 type: string
+              replicas:
+                description: No of replicas required in the rsync daemon.
+                format: int32
+                type: integer
               username:
-                description: Username to access this source by a client
+                description: Username added as valid user for rsync daemon. Rsync
+                  client that has password can access the source uisng username and
+                  password.
                 type: string
               volume:
-                description: Volume that we want to make available to the client
+                description: Volume that we want to make available to the client.
+                  This volume is mounted to the source as a readonly filesystem. Clisnt
+                  can only read that volume using credentials.
                 properties:
                   awsElasticBlockStore:
                     description: 'AWSElasticBlockStore represents an AWS Disk resource
@@ -1452,6 +1458,7 @@ spec:
             required:
             - image
             - password
+            - replicas
             - username
             - volume
             type: object
